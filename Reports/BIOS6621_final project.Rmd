@@ -1,11 +1,10 @@
 ---
 title: 'BIOS6621: Final Project'
 output:
-  pdf_document: default
   word_document: default
+  pdf_document: default
   html_document: default
-header-includes:
-  - \usepackage{float}
+header-includes: \usepackage{float}
 ---
 
 ```{r setup, include=FALSE, message = F, warning = F}
@@ -56,7 +55,9 @@ A cross-sectional analysis was conducted using student-level summaries of OSCE s
 ```{r, echo = F}
 ## ---- Data import ----------------------------------------
 # Read the original dataset of 199 students
-df <- read.csv("C:\\Users\\mahim\\OneDrive - The University of Colorado Denver\\BIOS6621_consulting\\Final Project_mahi\\DataRaw\\BIOS6621_Guth_data.csv")
+#df <- read.csv("C:\\Users\\mahim\\OneDrive - The University of Colorado Denver\\BIOS6621_consulting\\Final Project_mahi\\DataRaw\\BIOS6621_Guth_data.csv")
+
+df <- readr::read_csv(here::here("DataRaw", "BIOS6621_Guth_data.csv"))
 
 ## ---- Derive URM binary (Non-URM vs URM) -----------------
 # URM variable contains 0, 1, and 3.
@@ -382,13 +383,9 @@ table1 %>%
 
 Among the `r n_analytic` students in the analytic sample, `r n_nonurm` (`r round(pct_nonurm, 1)`%) were classified as Non-URM and `r n_urm` (`r round(pct_urm, 1)`%) as URM.
 
-Gender distribution was similar across groups. Among Non-URM students,`r round(gender_tab$pct[gender_tab$URM_bin=="Non-URM" & gender_tab$gender_clean=="F"], 1)`% were female and `r round(gender_tab$pct[gender_tab$URM_bin=="Non-URM" & gender_tab$gender_clean=="M"], 1)`% were male. Among URM students, `r round(gender_tab$pct[gender_tab$URM_bin=="URM" & gender_tab$gender_clean=="F"], 1)`% were female and
-`r round(gender_tab$pct[gender_tab$URM_bin=="URM" & gender_tab$gender_clean=="M"], 1)`% were male.
+Gender distribution was similar across groups. Among Non-URM students, `r round(gender_tab$pct[gender_tab$URM_bin == "Non-URM" & gender_tab$gender_clean == "F"][1], 1)`% were female and `r round(gender_tab$pct[gender_tab$URM_bin == "Non-URM" & gender_tab$gender_clean == "M"][1], 1)`% were male. Among URM students, `r round(gender_tab$pct[gender_tab$URM_bin == "URM" & gender_tab$gender_clean == "F"][1], 1)`% were female and `r round(gender_tab$pct[gender_tab$URM_bin == "URM" & gender_tab$gender_clean == "M"][1], 1)`% were male.
 
-Race distributions differed substantially between URM and non-URM students. Among non-URM students, the majority identified as White (`r race_tab$pct[race_tab$URM_bin=="Non-URM" & race_tab$race_simple=="White"]`%), whereas only `r race_tab$pct[race_tab$URM_bin=="URM" & race_tab$race_simple=="White"]`% of URM students were White. In contrast, URM students were more represented in the Black/African American 
-(`r race_tab$pct[race_tab$URM_bin=="URM" & race_tab$race_simple=="Black / African American"]`%) and American Indian/Alaska Native categories 
-(`r race_tab$pct[race_tab$URM_bin=="URM" & race_tab$race_simple=="American Indian / Alaska Native"]`%), groups that were not represented in the non-URM cohort. Missing race information was more common among URM students (`r race_tab$pct[race_tab$URM_bin=="URM" & is.na(race_tab$race_simple)]`%) compared with non-URM students (`r race_tab$pct[race_tab$URM_bin=="Non-URM" & is.na(race_tab$race_simple)]`%).
-
+Race distributions differed substantially between URM and non-URM students. Among non-URM students, the majority identified as White (`r race_tab$pct[race_tab$URM_bin=="Non-URM" & race_tab$race_simple=="White"][1]`%), followed by Asian (`r race_tab$pct[race_tab$URM_bin=="Non-URM" & race_tab$race_simple=="Asian"][1]`%). Among URM students, White (`r race_tab$pct[race_tab$URM_bin=="URM" & race_tab$race_simple=="White"][1]`%) and Asian (`r race_tab$pct[race_tab$URM_bin=="URM" & race_tab$race_simple=="Asian"][1]`%) students were less common, with higher representation in Black/African American (`r race_tab$pct[race_tab$URM_bin=="URM" & race_tab$race_simple=="Black / African American"][1]`%) and American Indian/Alaska Native (`r race_tab$pct[race_tab$URM_bin=="URM" & race_tab$race_simple=="American Indian / Alaska Native"][1]`%) categories. Missing race information was more common among URM students (`r race_tab$pct[race_tab$URM_bin=="URM" & is.na(race_tab$race_simple)][1]`%) compared with non-URM students (`r race_tab$pct[race_tab$URM_bin=="Non-URM" & is.na(race_tab$race_simple)][1]`%).
 
 Mean USMLE scores were higher among Non-URM students for both Step examinations. Step 1 scores averaged `r round(step_summary$mean_step1[step_summary$URM_bin=="Non-URM"], 1)`  (SD `r round(step_summary$sd_step1[step_summary$URM_bin=="Non-URM"], 1)`) for Non-URM students and `r round(step_summary$mean_step1[step_summary$URM_bin=="URM"], 1)` (SD `r round(step_summary$sd_step1[step_summary$URM_bin=="URM"], 1)`) for URM students. A similar pattern was observed for Step 2 CK scores (Non-URM mean 
 `r round(step_summary$mean_step2[step_summary$URM_bin=="Non-URM"], 1)`,  SD `r round(step_summary$sd_step2[step_summary$URM_bin=="Non-URM"], 1)`;  URM mean `r round(step_summary$mean_step2[step_summary$URM_bin=="URM"], 1)`, SD `r round(step_summary$sd_step2[step_summary$URM_bin=="URM"], 1)`).
@@ -422,7 +419,7 @@ tt_table <- bind_rows(
     estimate = round(estimate, 2),
     conf.low = round(conf.low, 2),
     conf.high = round(conf.high, 2),
-    p.value = sprintf("%.3f", p.value)
+    p.value = ifelse(p.value < 0.001, "<0.001", sprintf("%.3f", p.value))
   )
 
 # Add group means separately
@@ -499,7 +496,7 @@ reg_osce <- bind_rows(
     estimate = round(estimate, 2),
     conf.low = round(conf.low, 2),
     conf.high = round(conf.high, 2),
-    p.value = sprintf("%.3f", p.value),
+    p.value = ifelse(p.value < 0.001, "<0.001", sprintf("%.3f", p.value)),
     term = recode(term,
       "(Intercept)" = "Intercept",
       "URM_binURM" = "URM (vs Non-URM)",
@@ -530,7 +527,10 @@ reg_osce %>%
   collapse_rows(columns = 1)
 ```
 
-After adjusting for gender and USMLE Step scores, URM status was not significantly associated with any OSCE domain. In the OSCE communication domain, the URM coefficient was essentially zero (estimate `r reg_osce$Estimate[reg_osce$Domain == "Communication" & reg_osce$Predictor == "URM (vs Non-URM)"]`; p = `r reg_osce$`p-value`[reg_osce$Domain == "Communication" & reg_osce$Predictor == "URM (vs Non-URM)"]`), indicating no meaningful adjusted difference between groups. For Documentation, URM students scored an estimated `r reg_osce$Estimate[reg_osce$Domain == "Documentation" & reg_osce$Predictor == "URM (vs Non-URM)"]` points lower on average, but this difference was not statistically significant (p = `r reg_osce$`p-value`[reg_osce$Domain == "Documentation" & reg_osce$Predictor == "URM (vs Non-URM)"]`). Similarly, in the Physical Exam domain, the adjusted URM difference was less than 1 point and non-significant (p = `r reg_osce$`p-value`[reg_osce$Domain == "Physical Exam" & reg_osce$Predictor == "URM (vs Non-URM)"]`). Across all domains, gender and USMLE Step 2 CK scores showed consistent associations with OSCE performance, whereas USMLE Step 1 did not meaningfully contribute. Overall, these adjusted models provide no evidence that URM status independently predicts OSCE domain scores.
+In the OSCE communication domain, the URM coefficient was essentially zero (estimate `r reg_osce$Estimate[reg_osce$Domain == "Communication" & reg_osce$Predictor == "URM (vs Non-URM)"]`; p = `r reg_osce[reg_osce$Domain == "Communication" & reg_osce$Predictor == "URM (vs Non-URM)", "p-value"]`), 
+indicating no meaningful adjusted difference between groups. For Documentation, URM students scored an estimated 
+`r reg_osce$Estimate[reg_osce$Domain == "Documentation" & reg_osce$Predictor == "URM (vs Non-URM)"]` points lower on average, but this difference was not statistically significant (p = `r reg_osce[reg_osce$Domain == "Documentation" & reg_osce$Predictor == "URM (vs Non-URM)", "p-value"]`). Similarly, in the Physical Exam domain, the adjusted URM difference was less than 1 point and non-significant (p = `r reg_osce[reg_osce$Domain == "Physical Exam" & reg_osce$Predictor == "URM (vs Non-URM)", "p-value"]`). Across all domains, gender and USMLE Step 2 CK scores showed consistent associations with OSCE performance, whereas USMLE Step 1 did not meaningfully contribute. Overall, these adjusted models provide no evidence that URM status independently predicts OSCE domain scores.
+
 
 The following Table 4 summarizes the FDR-corrected significance levels for URM effects across OSCE domains.
 
@@ -593,7 +593,7 @@ tt_step <- bind_rows(
     estimate = round(estimate, 2),
     conf.low = round(conf.low, 2),
     conf.high = round(conf.high, 2),
-    p.value = sprintf("%.3f", p.value)
+    p.value = ifelse(p.value < 0.001, "<0.001", sprintf("%.3f", p.value))
   )
 
 # Add group means for Non-URM and URM for each Step exam
@@ -628,7 +628,7 @@ tt_step_table %>%
 
 ```
 
-In unadjusted comparisons, URM students scored significantly lower than Non-URM students on both USMLE Step examinations. For Step 1, Non-URM students scored approximately `r round(tt_step$estimate[tt_step$outcome == "USMLE Step 1"])` points higher on average (`r means_step$mean_nonurm[means_step$outcome == "USMLE Step 1"]` vs. `r means_step$mean_urm[means_step$outcome == "USMLE Step 1"]`; p = `r tt_step$p.value[tt_step$outcome == "USMLE Step 1"]`). A similar pattern was observed for Step 2 CK, where Non-URM students scored about `r round(tt_step$estimate[tt_step$outcome == "USMLE Step 2 CK"])` points higher on average (`r means_step$mean_nonurm[means_step$outcome == "USMLE Step 2 CK"]` vs. `r means_step$mean_urm[means_step$outcome == "USMLE Step 2 CK"]`; p < `r ifelse(t_step2$p.value < 0.001, "0.001", sprintf("%.3f", t_step2$p.value))`). These results indicate meaningful group differences in USMLE performance prior to adjustment for other factors.
+In unadjusted comparisons, URM students scored significantly lower than Non-URM students on both USMLE Step examinations. For Step 1, Non-URM students scored approximately `r round(tt_step$estimate[tt_step$outcome == "USMLE Step 1"])` points higher on average (`r means_step$mean_nonurm[means_step$outcome == "USMLE Step 1"]` vs. `r means_step$mean_urm[means_step$outcome == "USMLE Step 1"]`; p = `r tt_step$p.value[tt_step$outcome == "USMLE Step 1"]`). A similar pattern was observed for Step 2 CK, where Non-URM students scored about `r round(tt_step$estimate[tt_step$outcome == "USMLE Step 2 CK"])` points higher on average (`r means_step$mean_nonurm[means_step$outcome == "USMLE Step 2 CK"]` vs. `r means_step$mean_urm[means_step$outcome == "USMLE Step 2 CK"]`; p < `r ifelse(t_step2$p.value < 0.001, "0.001", sprintf("%.3f", t_step2$p.value))`). These unadjusted results indicate meaningful differences in USMLE performance between URM and non-URM students prior to adjustment for other factors.
 
 Table 6 below displays gender-adjusted differences in USMLE Step scores between URM and Non-URM groups.
 
@@ -649,7 +649,7 @@ urm_step <- bind_rows(
     estimate = round(estimate, 1),
     conf.low = round(conf.low, 1),
     conf.high = round(conf.high, 1),
-    p.value = sprintf("%.3f", p.value),
+    p.value = ifelse(p.value < 0.001, "<0.001", sprintf("%.3f", p.value)),
     ci = paste0(conf.low, " to ", conf.high)
   ) %>%
   select(
@@ -668,8 +668,7 @@ urm_step %>%
   kable_styling(full_width = FALSE, position = "center")
 ```
 
-After adjusting for gender, URM students continued to score significantly lower on both Step examinations. URM students scored an estimated `r urm_step$`Adjusted Difference (URM – Non-URM)`[urm_step$Outcome == "USMLE Step 1"]` points lower on Step 1 (95% CI: `r urm_step$`95% CI`[urm_step$Outcome == "USMLE Step 1"]`; p = `r urm_step$`p-value`[urm_step$Outcome == "USMLE Step 1"]`). For Step 2 CK, URM students scored `r urm_step$`Adjusted Difference (URM – Non-URM)`[urm_step$Outcome == "USMLE Step 2 CK"]` points lower (95% CI: `r urm_step$`95% CI`[urm_step$Outcome == "USMLE Step 2 CK"]`; p = `r urm_step$`p-value`[urm_step$Outcome == "USMLE Step 2 CK"]`). These adjusted differences remained statistically significant and suggest that URM students experience notable performance gaps on standardized licensing examinations that are not explained by gender alone.
-
+After adjusting for gender, URM students continued to score significantly lower on both Step examinations. URM students scored an estimated `r urm_step[urm_step$Outcome == "USMLE Step 1", "Adjusted Difference (URM – Non-URM)"]` points lower on Step 1 (95% CI: `r urm_step[urm_step$Outcome == "USMLE Step 1", "95% CI"]`; p = `r urm_step[urm_step$Outcome == "USMLE Step 1", "p-value"]`). For Step 2 CK, URM students scored `r urm_step[urm_step$Outcome == "USMLE Step 2 CK", "Adjusted Difference (URM – Non-URM)"]` points lower (95% CI: `r urm_step[urm_step$Outcome == "USMLE Step 2 CK", "95% CI"]`; p = `r urm_step[urm_step$Outcome == "USMLE Step 2 CK", "p-value"]`). These adjusted differences remained statistically significant and suggest that URM students experience notable performance gaps on standardized licensing examinations that are not explained by gender alone.
 
 ### OSCE-USMLE relationship (H3)
 
@@ -704,7 +703,7 @@ get_cor_row <- function(osce_var, step_var) {
     `USMLE Exam`  = step_labels[step_var],
     r             = round(unname(ct$estimate), 2),
     `95% CI`      = sprintf("[%.2f, %.2f]", ct$conf.int[1], ct$conf.int[2]),
-    `p-value`     = sprintf("%.3f", ct$p.value)
+    `p-value`     = ifelse(ct$p.value < 0.001, "<0.001", sprintf("%.3f", ct$p.value))
   )
 }
 
@@ -722,7 +721,8 @@ cor_osce_usmle %>%
 
 ```
 
-Across all OSCE domains, correlations with USMLE Step scores were positive, with consistently stronger associations observed for Step 2 CK score compared with Step 1 score. For USMLE Step 1 score, OSCE Communication and Documentation showed weak, non-significant correlations (r = `r cor_osce_usmle$r[cor_osce_usmle$`OSCE Domain`=="OSCE Communication" & cor_osce_usmle$`USMLE Exam`=="USMLE Step 1"]` and r = `r cor_osce_usmle$r[cor_osce_usmle$`OSCE Domain`=="OSCE Documentation" & cor_osce_usmle$`USMLE Exam`=="USMLE Step 1"]`, respectively), whereas Physical Exam showed a small but statistically significant association (r = `r cor_osce_usmle$r[cor_osce_usmle$`OSCE Domain`=="OSCE Physical Exam" & cor_osce_usmle$`USMLE Exam`=="USMLE Step 1"]`; p = `r cor_osce_usmle$`p-value`[cor_osce_usmle$`OSCE Domain`=="OSCE Physical Exam" & cor_osce_usmle$`USMLE Exam`=="USMLE Step 1"]`). For USMLE Step 2 CK score, all three OSCE domains showed statistically significant correlations, ranging from r = `r min(cor_osce_usmle$r[cor_osce_usmle$`USMLE Exam`=="USMLE Step 2 CK"])` to r = `r max(cor_osce_usmle$r[cor_osce_usmle$`USMLE Exam`=="USMLE Step 2 CK"])`, indicating modest but meaningful associations. Overall, these findings suggest that OSCE performance is more closely aligned with the applied clinical knowledge assessed by Step 2 CK than with the foundational science content assessed in Step 1.
+
+All OSCE domains showed positive correlations with USMLE Step performance. Associations were consistently stronger for Step 2 CK than for Step 1, with Step 2 CK correlations falling in the modest but statistically significant range. For USMLE Step 1 score, OSCE Communication and Documentation showed weak, non-significant correlations (r = `r cor_osce_usmle[cor_osce_usmle[["OSCE Domain"]] == "OSCE Communication" & cor_osce_usmle[["USMLE Exam"]] == "USMLE Step 1", "r"][[1]]` and r = `r cor_osce_usmle[cor_osce_usmle[["OSCE Domain"]] == "OSCE Documentation" & cor_osce_usmle[["USMLE Exam"]] == "USMLE Step 1", "r"][[1]]`, respectively), whereas Physical Exam showed a small but statistically significant association (r = `r cor_osce_usmle[cor_osce_usmle[["OSCE Domain"]] == "OSCE Physical Exam" & cor_osce_usmle[["USMLE Exam"]] == "USMLE Step 1", "r"][[1]]`; p = `r cor_osce_usmle[cor_osce_usmle[["OSCE Domain"]] == "OSCE Physical Exam" & cor_osce_usmle[["USMLE Exam"]] == "USMLE Step 1", "p-value"][[1]]`). For USMLE Step 2 CK score, all three OSCE domains showed statistically significant correlations, ranging from r = `r min(cor_osce_usmle[cor_osce_usmle[["USMLE Exam"]] == "USMLE Step 2 CK", "r"][["r"]])` to r = `r max(cor_osce_usmle[cor_osce_usmle[["USMLE Exam"]] == "USMLE Step 2 CK", "r"][["r"]])`, indicating modest but meaningful associations. Overall, these findings suggest that OSCE performance is more closely aligned with the applied clinical knowledge assessed by Step 2 CK than with the foundational science content assessed in Step 1.
 
 This table below shows the associations between OSCE domain scores and USMLE Step scores estimated from simple linear regression models.
 
@@ -759,9 +759,9 @@ reg_table %>%
   collapse_rows(columns = 1)
 ```
 
-Across all models, higher OSCE domain scores were associated with higher USMLE Step scores. For USMLE Step 1, only the OSCE Physical Exam domain showed a statistically significant positive association ($\beta$ = `r reg_table$Estimate[reg_table$Outcome=="USMLE Step 1" & reg_table$Predictor=="OSCE Physical Exam"]`, 95% CI `r reg_table$CI[reg_table$Outcome=="USMLE Step 1" & reg_table$Predictor=="OSCE Physical Exam"]`; p = `r reg_table$`p-value`[reg_table$Outcome=="USMLE Step 1" & reg_table$Predictor=="OSCE Physical Exam"]`). OSCE Communication and Documentation domain scores showed positive but non-significant associations with Step 1 ($\beta$ = `r reg_table$Estimate[reg_table$Outcome=="USMLE Step 1" & reg_table$Predictor=="OSCE Communication"]` and $\beta$ = `r reg_table$Estimate[reg_table$Outcome=="USMLE Step 1" & reg_table$Predictor=="OSCE Documentation"]`, respectively).
+Across all models, higher OSCE domain scores were associated with higher USMLE Step scores. For USMLE Step 1, only the OSCE Physical Exam domain showed a statistically significant positive association ($\beta$ = `r reg_table[reg_table$Outcome=="USMLE Step 1" & reg_table$Predictor=="OSCE Physical Exam", "Estimate"]`, 95% CI `r reg_table[reg_table$Outcome=="USMLE Step 1" & reg_table$Predictor=="OSCE Physical Exam", "CI"]`; p = `r reg_table[reg_table$Outcome=="USMLE Step 1" & reg_table$Predictor=="OSCE Physical Exam", "p-value"]`). OSCE Communication and Documentation domain scores showed positive but non-significant associations with Step 1 ($\beta$ = `r reg_table[reg_table$Outcome=="USMLE Step 1" & reg_table$Predictor=="OSCE Communication", "Estimate"]` and $\beta$ = `r reg_table[reg_table$Outcome=="USMLE Step 1" & reg_table$Predictor=="OSCE Documentation", "Estimate"]`, respectively).
 
-For USMLE Step 2 CK, all three OSCE domains were significantly associated with exam performance. The strongest relationship was observed for Physical Exam ($\beta$ = `r reg_table$Estimate[reg_table$Outcome=="USMLE Step 2 CK" & reg_table$Predictor=="OSCE Physical Exam"]`, 95% CI `r reg_table$CI[reg_table$Outcome=="USMLE Step 2 CK" & reg_table$Predictor=="OSCE Physical Exam"]`; p = `r reg_table$`p-value`[reg_table$Outcome=="USMLE Step 2 CK" & reg_table$Predictor=="OSCE Physical Exam"]`). Communication ($\beta$ = `r reg_table$Estimate[reg_table$Outcome=="USMLE Step 2 CK" & reg_table$Predictor=="OSCE Communication"]`) and Documentation ($\beta$ = `r reg_table$Estimate[reg_table$Outcome=="USMLE Step 2 CK" & reg_table$Predictor=="OSCE Documentation"]`) also showed statistically significant associations.
+For USMLE Step 2 CK, all three OSCE domains were significantly associated with exam performance. The strongest relationship was observed for Physical Exam ($\beta$ = `r reg_table[reg_table$Outcome=="USMLE Step 2 CK" & reg_table$Predictor=="OSCE Physical Exam", "Estimate"]`, 95% CI `r reg_table[reg_table$Outcome=="USMLE Step 2 CK" & reg_table$Predictor=="OSCE Physical Exam", "CI"]`; p = `r reg_table[reg_table$Outcome=="USMLE Step 2 CK" & reg_table$Predictor=="OSCE Physical Exam", "p-value"]`). Communication ($\beta$ = `r reg_table[reg_table$Outcome=="USMLE Step 2 CK" & reg_table$Predictor=="OSCE Communication", "Estimate"]`) and Documentation ($\beta$ = `r reg_table[reg_table$Outcome=="USMLE Step 2 CK" & reg_table$Predictor=="OSCE Documentation", "Estimate"]`) also showed statistically significant associations.
 
 Overall, OSCE performance, particularly in the Physical Exam domain shows meaningful associations with USMLE scores, with stronger relationships observed for Step 2 CK than Step 1.
 
@@ -779,7 +779,7 @@ This study has several limitations. The analysis was conducted within a single i
 
 ### Future directions
 
-These findings suggest several directions for expanding the scope of future work. Extending the analysis to additional cohorts would allow investigation of temporal trends and improve the precision of estimates. Evaluationg potential gender-by-URM interactions and other intersectional patterns may provide a more nuanced understanding of performance patterns across student subgroups. Furthermore, incorporating item-level or station-level OSCE data could help identify whether particular skills or content areas exhibit larger performance gaps than overall domain averages.
+These findings suggest several directions for expanding the scope of future work. Extending the analysis to additional cohorts would allow investigation of temporal trends and improve the precision of estimates. Evaluating potential gender-by-URM interactions and other intersectional patterns may provide a more nuanced understanding of performance patterns across student subgroups. Furthermore, incorporating item-level or station-level OSCE data could help identify whether particular skills or content areas exhibit larger performance gaps than overall domain averages.
 
 \newpage
 ### Figures Appendix
